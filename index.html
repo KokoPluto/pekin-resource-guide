@@ -250,11 +250,33 @@
   .no-results { text-align: center; color: var(--gray); padding: 60px 0; font-size: 16px; }
 
   /* ── Mobile ── */
+  /* Mobile dropdown */
+  #mobile-category-wrap { display: none; }
+  #mobile-category {
+    width: 100%; padding: 12px 16px;
+    font-size: 15px; font-family: 'Source Sans 3', sans-serif;
+    border: 1.5px solid var(--border); border-radius: 10px;
+    background: white; color: #1a202c;
+    appearance: none; -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    cursor: pointer;
+    margin-bottom: 12px;
+  }
+  #mobile-category:focus { outline: none; border-color: var(--navy); }
+
   @media (max-width: 768px) {
     #sidebar { display: none; }
-    #main { padding: 16px; }
+    #mobile-category-wrap { display: block; }
+    #body { display: block; }
+    #main { padding: 16px; width: 100%; box-sizing: border-box; }
+    #search-wrap { display: block; width: 100%; }
+    #search { width: 100%; display: block; }
     .card { grid-template-columns: 1fr; }
     .card-right { display: none; }
+    #header h1 { font-size: 15px; }
+    #header h1 span { font-size: 10px; }
   }
 </style>
 </head>
@@ -309,6 +331,36 @@
 
     <!-- Main -->
     <div id="main">
+      <div id="mobile-category-wrap">
+        <select id="mobile-category" onchange="onMobileCategory(this.value)">
+          <option value="">Browse by category…</option>
+          <optgroup label="Healthcare & Support">
+            <option value="Addiction Services">Addiction Services</option>
+            <option value="Counseling &amp; Treatment">Counseling &amp; Treatment</option>
+            <option value="Free Naloxone (Narcan) Sites">Free Naloxone (Narcan) Sites</option>
+            <option value="Healthcare">Healthcare</option>
+          </optgroup>
+          <optgroup label="Social & Community">
+            <option value="Children's Services and Programs">Children's Services and Programs</option>
+            <option value="Clothing &amp; Personal Items">Clothing &amp; Personal Items</option>
+            <option value="Food Pantries">Food Pantries</option>
+            <option value="Fostering or Adoption">Fostering or Adoption</option>
+            <option value="Disability Services">Disability Services</option>
+            <option value="Blind &amp; Visually Impaired Services">Blind &amp; Visually Impaired Services</option>
+            <option value="Advocacy: Senior Citizens or Disabled Individuals">Advocacy: Seniors/Disabled</option>
+            <option value="Senior Services">Senior Services</option>
+          </optgroup>
+          <optgroup label="Safety & Legal">
+            <option value="Crime: Victim Assistance">Crime: Victim Assistance</option>
+            <option value="Veteran Resources">Veteran Resources</option>
+          </optgroup>
+          <optgroup label="Other Resources">
+            <option value="Housing &amp; Shelter">Housing &amp; Shelter</option>
+            <option value="Technology Resources">Technology Resources</option>
+            <option value="Transportation">Transportation</option>
+          </optgroup>
+        </select>
+      </div>
       <div id="search-wrap">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
         <input type="text" id="search" placeholder="Search resources by name, address, or topic…">
@@ -408,6 +460,9 @@ fetch("resources.csv")
 function goToTopic(topic) {
   currentTopic = topic;
   clearSearchInput();
+  // sync mobile dropdown
+  const dd = document.getElementById('mobile-category');
+  if (dd) dd.value = topic;
   document.querySelectorAll(".toc-item").forEach(el => {
     el.classList.toggle("active", el.textContent.trim() === topic ||
       el.getAttribute("onclick")?.includes(topic.replace(/'/g, "\\'")));
@@ -446,6 +501,13 @@ function buildCard(r, showBadge) {
       </a>
     </div>
   </div>`;
+}
+
+function onMobileCategory(topic) {
+  if (!topic) return;
+  clearSearchInput();
+  document.getElementById('search-count').textContent = '';
+  goToTopic(topic);
 }
 
 // ── SEARCH ──
